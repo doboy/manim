@@ -6,7 +6,7 @@ __all__ = [
 
 from ..utils.color import BLACK
 from .types.vectorized_mobject import VMobject
-from .geometry import Dot, Line, LabeledDot
+from .geometry import Dot, Line, LabeledDot, Arrow
 from .svg.tex_mobject import MathTex
 
 from typing import Hashable, Union, List, Tuple
@@ -208,6 +208,8 @@ class Graph(VMobject):
         to the class specified via ``edge_type``, or a dictionary whose
         keys are the edges, and whose values are dictionaries containing
         keyword arguments for the mobject related to the corresponding edge.
+    is_directed
+        Controls whether or not edges are directed.
 
     Examples
     --------
@@ -350,10 +352,11 @@ class Graph(VMobject):
         layout_config: Union[dict, None] = None,
         vertex_type: "Mobject" = Dot,
         vertex_config: Union[dict, None] = None,
-        edge_type: "Mobject" = Line,
+        edge_type: "Mobject" = None,
         partitions: Union[List[List[Hashable]], None] = None,
         root_vertex: Union[Hashable, None] = None,
         edge_config: Union[dict, None] = None,
+        is_directed: bool = False
     ) -> None:
         VMobject.__init__(self)
 
@@ -370,6 +373,12 @@ class Graph(VMobject):
             partitions=partitions,
             root_vertex=root_vertex,
         )
+
+        if edge_type is None:
+            if is_directed:
+                edge_type = Arrow
+            else:
+                edge_type = Line
 
         if isinstance(labels, dict):
             self._labels = labels
@@ -436,7 +445,12 @@ class Graph(VMobject):
 
         def update_edges(graph):
             for (u, v), edge in graph.edges.items():
-                edge.put_start_and_end_on(graph[u].get_center(), graph[v].get_center())
+                start = graph[u].get_center()
+                end = graph[v].get_center()
+                direction = (end - start) / np.linalg.norm(end - start)
+                start += direction * graph[u].radius
+                end -= direction * graph[v].radius
+                edge.put_start_and_end_on(start, end)
 
         self.add_updater(update_edges)
 
