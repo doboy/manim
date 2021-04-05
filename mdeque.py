@@ -57,6 +57,13 @@ class Mdeque(VMobject):
       animations.append(MoveToTarget(_m_element))
     return [animations]
 
+  def clear(self):
+    animations = []
+    for m_element in self.m_elements:
+      animations.append(FadeOut(m_element))
+    self.m_elements = []
+    return [animations]
+
   def pop(self):
     m_element = self.m_elements.pop()
     return [
@@ -64,10 +71,12 @@ class Mdeque(VMobject):
       m_element,
     ]
 
-  def popleft(self):
+  def popleft(self, animate_fadeout=True):
     m_element = self.m_elements[0]
     self.m_elements.remove(m_element)
-    animations = [FadeOut(m_element)]
+    animations = []
+    if animate_fadeout:
+      animations.append(FadeOut(m_element))
     for idx, _m_element in enumerate(self.m_elements):
       _m_element.generate_target()
       _m_element.target.move_to(self.m_squares[idx])
@@ -77,6 +86,9 @@ class Mdeque(VMobject):
       animations,
       m_element,
     ]
+
+  def __len__(self):
+    return len(self.m_elements)
 
 class Example(Scene):
   def construct(self):
