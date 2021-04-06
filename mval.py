@@ -1,7 +1,7 @@
 from collections import defaultdict, deque
 from manim import *
 
-SQUARE_SIDE_LENGTH=1
+SQUARE_SIDE_LENGTH = 1
 
 class Mval(VMobject):
   def __init__(self):
@@ -9,6 +9,9 @@ class Mval(VMobject):
     self.m_element = None
     self.m_square = Square(side_length=SQUARE_SIDE_LENGTH)
     self.add(self.m_square)
+
+  def get(self):
+    return self.m_element
 
   def set(self, m_new, create=False, animate_fadeout=True):
     m_old = self.m_element

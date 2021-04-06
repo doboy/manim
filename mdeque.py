@@ -1,7 +1,7 @@
 from collections import defaultdict, deque
 from manim import *
 
-SQUARE_SIDE_LENGTH=1
+SQUARE_SIDE_LENGTH = 1
 
 class Mdeque(VMobject):
   def __init__(self, size, direction=RIGHT):
@@ -20,13 +20,13 @@ class Mdeque(VMobject):
 
     self.add(*self.m_squares)
 
-  def append(self, m_element, create=False):
+  def append(self, m_element, create=False, move=False):
     if type(m_element) in (str, int):
       m_element = Text(str(m_element))
     self.m_elements.append(m_element)
     index = self.m_elements.index(m_element)
     animations = None
-    if create:
+    if create or move:
       m_element.move_to(self.m_squares[index])
       animations = [Create(m_element)]
     else:
