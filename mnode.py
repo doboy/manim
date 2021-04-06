@@ -19,3 +19,25 @@ class Mnode(VMobject):
   def set_circle_color(self, color):
     self.circle.set_color(color)
     return self
+
+class Mhiddennode(VMobject):
+  def __init__(self, label, radius, color, **kwargs):
+    VMobject.__init__(self)
+    if type(label) in (int, str):
+      self.label = Text("?")
+      self.hidden = Text(str(label))
+    else:
+      self.label = Text("?")
+      self.hidden = label
+
+    if label.text == "A":
+      self.label = self.hidden
+
+    self.circle = Circle(radius=radius, color=color, **kwargs)
+    self.label.move_to(self.circle.get_center())
+    self.add(self.label, self.circle)
+    self.radius = radius
+
+  def set_circle_color(self, color):
+    self.circle.set_color(color)
+    return self
