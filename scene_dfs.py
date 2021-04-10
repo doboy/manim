@@ -18,7 +18,7 @@ VISITED_COLOR = GREEN_SCREEN
 CURRENT_NODE_COLOR = YELLOW_C
 GRAPH_BORDER = 5
 
-class BFS(Scene):
+class DFS(Scene):
   def construct(self):
     vertices = ["A", "B", "C", "D", "E", "F", "G", "J", "K"]
     edges = [
@@ -26,39 +26,39 @@ class BFS(Scene):
       ("A", "G"),
       ("B", "G"),
       ("B", "C"),
-      ("C", "E"),
+      # ("C", "E"),
       ("G", "E"),
       ("G", "J"),
       ("J", "D"),
       ("J", "F"),
       ("D", "F"),
-      ("D", "K"),
-      ("K", "F"),
-      ("J", "E"),
+      # ("D", "K"),
+      # ("K", "F"),
+      # ("J", "E"),
       ("K", "E"),
     ]
 
-    title_text = Text("Breath First Search").shift(UP * (GRAPH_BORDER + 1)).scale_in_place(1.5)
+    title_text = Text("Depth First Search").shift(UP * (GRAPH_BORDER + 1)).scale_in_place(1.5)
     self.play(Write(title_text))
 
-    max_queue_size, discovered_length = self.bfs("A", edges, animate=False)
-    if max_queue_size != 4:
-      raise Exception("Try again")
+    max_stack_size, discovered_length = self.dfs("A", edges, animate=False)
+    # if max_stack_size != 4:
+    #   raise Exception("Try again")
     self.visited_mdeque = Mdeque(discovered_length).to_edge(LEFT).shift(DOWN * GRAPH_BORDER)
     self.current_placeholder = Mval().to_edge(RIGHT).shift(DOWN * GRAPH_BORDER)
-    self.queue_mdeque = Mdeque(discovered_length - 1, direction=UP).next_to(self.current_placeholder, direction=UP)
+    self.stack_mdeque = Mdeque(discovered_length - 1, direction=UP).next_to(self.current_placeholder, direction=UP)
     self.play(
       Create(self.visited_mdeque),
-      Create(self.queue_mdeque),
+      Create(self.stack_mdeque),
       Create(self.current_placeholder),
     )
 
     visited_order_text = Text("Visited Order").next_to(self.visited_mdeque, direction=DOWN).scale_in_place(.5)
-    queue_text = Text("Queue").next_to(self.queue_mdeque, direction=UP).scale_in_place(.5)
+    stack_text = Text("Stack").next_to(self.stack_mdeque, direction=UP).scale_in_place(.5)
     current_node_text = Text("Current").next_to(self.current_placeholder, direction=DOWN).scale_in_place(.5)
     self.play(
       Write(visited_order_text),
-      Write(queue_text),
+      Write(stack_text),
       Write(current_node_text),
     )
 
@@ -96,40 +96,40 @@ class BFS(Scene):
     )
 
     self.play(Create(self.graph.move_to([0, 0, 0])))
-    self.bfs("A", edges, animate=True)
+    self.wait(1)
+    self.dfs("A", edges, animate=True)
 
   def move_dot(self, line):
     return Dot(color=RED).next_to(self.code_text.submobjects[line], direction=LEFT)
 
-  def bfs(self, start_node, edges, animate=False):
-    """Returns max_queue_size, discovered_nodes"""
+  def dfs(self, start_node, edges, animate=False):
+    """Returns max_stack_size, discovered_nodes"""
     graph = defaultdict(set)
     for (start, end) in edges:
       graph[start].add(end)
       graph[end].add(start)
 
     discovered = set([start_node])
-    queue = deque([start_node])
+    stack = deque([start_node])
 
     if animate:
       self.play(
-        *self.queue_mdeque.append(self.graph.vertices[start_node].copy())[0],
+        *self.stack_mdeque.append(self.graph.vertices[start_node].copy())[0],
       )
 
-    max_queue_size = 0
+    max_stack_size = 0
     current = None
     m_current = None
     m_arrow = None
-    while len(queue) > 0:
-      current = queue.popleft()
+    while len(stack) > 0:
+      current = stack.pop()
       if animate:
-        shift_animations, m_current = self.queue_mdeque.popleft(animate_fadeout=False)
+        _, m_current = self.stack_mdeque.pop()
         m_current_copy = m_current.copy().move_to(self.current_placeholder).set_circle_color(CURRENT_NODE_COLOR)
 
         self.play(
           ApplyMethod(self.graph.vertices[current].set_circle_color, CURRENT_NODE_COLOR),
           Transform(m_current, m_current_copy),
-          *shift_animations,
           run_time=0.5
         )
 
@@ -143,10 +143,10 @@ class BFS(Scene):
           run_time=0.25
         )
 
-      for neighbor in graph[current]:
+      for neighbor in sorted(graph[current]):
         if neighbor not in discovered:
           discovered.add(neighbor)
-          queue.append(neighbor)
+          stack.append(neighbor)
           if animate:
             start = self.graph.vertices[current].get_center()
             end = self.graph.vertices[neighbor].get_center()
@@ -164,11 +164,11 @@ class BFS(Scene):
 
             self.play(
               FadeOut(m_arrow),
-              *self.queue_mdeque.append(
+              *self.stack_mdeque.append(
                 self.graph.vertices[neighbor].copy()
               )[0],
             )
-          max_queue_size = max(max_queue_size, len(queue))
+          max_stack_size = max(max_stack_size, len(stack))
 
       if animate:
         self.visited_mdeque.append(m_current.copy().set_circle_color(VISITED_COLOR), move=True)
@@ -185,4 +185,4 @@ class BFS(Scene):
     if animate:
       self.wait(5)
 
-    return max_queue_size, len(discovered)
+    return max_stack_size, len(discovered)

@@ -96,6 +96,7 @@ class BFS(Scene):
     )
 
     self.play(Create(self.graph.move_to([0, 0, 0])))
+    self.wait(1)
     self.bfs("A", edges, animate=True)
 
   def move_dot(self, line):
