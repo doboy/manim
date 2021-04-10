@@ -34,8 +34,9 @@ class Mhiddennode(VMobject):
       self.label = self.hidden
 
     self.circle = Circle(radius=radius, color=color, **kwargs)
+    self.other_circle = Circle(radius=radius).set_fill(BLACK, opacity=1)
     self.label.move_to(self.circle.get_center())
-    self.add(self.label, self.circle)
+    self.add(self.other_circle, self.label, self.circle)
     self.radius = radius
 
   def set_circle_color(self, color):
