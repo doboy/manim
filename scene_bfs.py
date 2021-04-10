@@ -38,7 +38,7 @@ class BFS(Scene):
       ("K", "E"),
     ]
 
-    title_text = Text("Breath First Search").shift(UP * (GRAPH_BORDER + 1)).scale_in_place(1.5)
+    title_text = Text("Breadth First Search").shift(UP * (GRAPH_BORDER + 1)).scale_in_place(1.5)
     self.play(Write(title_text))
 
     max_queue_size, discovered_length = self.bfs("A", edges, animate=False)
